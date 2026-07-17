@@ -6,7 +6,7 @@
     <title>Furniture Assembly Request</title>
     <style>
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: sans-serif; 
             background-color: #1e1e1e; 
             color: #fff; 
             padding: 20px; 
@@ -20,19 +20,14 @@
             background: #2d2d2d;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             max-width: 400px; 
             width: 100%;
             display: flex; 
             flex-direction: column; 
             gap: 15px; 
         }
-        h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            text-align: center;
-            color: #0076ff;
-        }
+        h3 { margin: 0 0 10px 0; text-align: center; color: #0076ff; }
+        label { font-size: 13px; color: #aaa; margin-bottom: -10px; padding-left: 2px; }
         input, textarea, button { 
             padding: 12px; 
             border-radius: 5px; 
@@ -45,79 +40,98 @@
             outline: none;
             border-color: #0076ff;
         }
-        button { 
-            background-color: #0076ff; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: background 0.2s ease;
-            margin-top: 5px;
-        }
-        button:hover { 
-            background-color: #005bc5; 
-        }
-        #result { 
-            text-align: center; 
-            font-weight: bold; 
-            min-height: 20px;
-        }
+        button { background-color: #0076ff; border: none; cursor: pointer; font-weight: bold; margin-top: 5px;}
+        button:hover { background-color: #005bc5; }
+        #result { text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <form id="web3-form">
+    <form id="combined-form">
         <input type="hidden" name="access_key" value="1255fc58-2cfc-4254-848a-9dc970317152">
         <input type="hidden" name="subject" value="New Furniture Assembly Request">
         <input type="checkbox" name="botcheck" style="display: none;">
 
         <h3>Request Furniture Assembly</h3>
         
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="tel" name="phone" placeholder="Phone Number" required>
-        <textarea name="details" placeholder="What needs to be assembled? (e.g., IKEA wardrobe, bed)" rows="4" required></textarea>
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" placeholder="e.g. John Doe" required>
+        
+        <label for="phone">Phone Number (with country code)</label>
+        <input type="tel" id="phone" name="phone" placeholder="e.g. +1 234 567 8900" required>
+        
+        <label for="address">Assembly Address</label>
+        <input type="text" id="address" name="address" placeholder="e.g. 123 Main Street, Apt 4B" required>
+        
+        <label for="details">What needs to be assembled?</label>
+        <textarea id="details" name="details" placeholder="e.g. IKEA Pax wardrobe, bed frame, kitchen chairs..." rows="4" required></textarea>
         
         <button type="submit">Submit Request</button>
         <div id="result"></div>
     </form>
 
     <script>
-        const form = document.getElementById('web3-form');
+        // === ВСТАВЬ СВОИ ДАННЫЕ СЮДА ===
+        const TG_TOKEN = "ВСТАВЬ_СЮДА_НОВЫЙ_ТОКЕН";
+        const TG_CHAT_ID = "ВСТАВЬ_СЮДА_ТВОЙ_ЧИСЛОВОЙ_ID";
+        // ===============================
+
+        const form = document.getElementById('combined-form');
         const result = document.getElementById('result');
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const formData = new FormData(form);
-            const object = Object.fromEntries(formData);
-            const json = JSON.stringify(object);
-            
             result.innerHTML = "Sending...";
             result.style.color = "#fff";
 
-            fetch('https://api.web3forms.com/submit', {
+            // Собираем данные из полей для Telegram
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const details = document.getElementById('details').value;
+
+            // Формируем красивый текст для Telegram-бота
+            let message = `🔔 <b>New Assembly Request!</b>\n\n`;
+            message += `👤 <b>Name:</b> ${name}\n`;
+            message += `📞 <b>Phone:</b> ${phone}\n`;
+            message += `📍 <b>Address:</b> ${address}\n`;
+            message += `🛠 <b>Details:</b> ${details}`;
+
+            // 1. Отправляем в Telegram
+            fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: json
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TG_CHAT_ID,
+                    parse_mode: 'HTML',
+                    text: message
+                })
             })
-            .then(async (response) => {
-                let json = await response.json();
-                if (response.status == 200) {
+            .then(() => {
+                // 2. Отправляем копию в Web3Forms (на почту)
+                const formData = new FormData(form);
+                const object = Object.fromEntries(formData);
+                
+                return fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(object)
+                });
+            })
+            .then(response => {
+                if (response.ok) {
                     result.style.color = "lightgreen";
                     result.innerHTML = "Success! Request sent.";
-                    form.reset(); // Очищаем поля формы
+                    form.reset();
                 } else {
-                    console.log(response);
                     result.style.color = "red";
-                    result.innerHTML = json.message;
+                    result.innerHTML = "Sent to TG, but Email backup failed.";
                 }
             })
             .catch(error => {
-                console.log(error);
+                console.error(error);
                 result.style.color = "red";
-                result.innerHTML = "Something went wrong!";
+                result.innerHTML = "Connection error!";
             });
         });
     </script>
