@@ -1,0 +1,52 @@
+<form id="tg-form">
+  <h3>Оставить заявку на сборку мебели</h3>
+  <input type="text" id="name" placeholder="Ваше имя" required><br><br>
+  <input type="tel" id="phone" placeholder="Номер телефона" required><br><br>
+  <textarea id="details" placeholder="Что нужно собрать? (например, шкаф ИКЕА)"></textarea><br><br>
+  <button type="submit">Отправить заявку</button>
+</form>
+
+<script>
+const TOKEN = "6106855993:AAEYxRIOggTc2Zp7xTGx5-Ldv-rg4LYzZGc";
+const CHAT_ID = "@Misha_test3248bot";
+const URI_API = `https://api.telegram.org/bot${6106855993:AAEYxRIOggTc2Zp7xTGx5-Ldv-rg4LYzZGc}/sendMessage`;
+
+document.getElementById('tg-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  // Собираем данные из полей
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const details = document.getElementById('details').value;
+  
+  // Формируем красивый текст сообщения
+  let message = `<b>Новая заявка с сайта!</b>\n`;
+  message += `<b>Имя:</b> ${name}\n`;
+  message += `<b>Телефон:</b> ${phone}\n`;
+  message += `<b>Детали:</b> ${details}`;
+  
+  // Отправляем запрос в Telegram
+  fetch(URI_API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      parse_mode: 'html',
+      text: message
+    })
+  })
+  .then(response => {
+    if (response.ok) {
+      alert('Заявка успешно отправлена! Я свяжусь с вами в ближайшее время.');
+      document.getElementById('tg-form').reset(); // Очистить форму
+    } else {
+      alert('Произошла ошибка при отправке. Попробуйте позже.');
+    }
+  })
+  .catch(error => {
+    console.error('Ошибка:', error);
+  });
+});
+</script>
