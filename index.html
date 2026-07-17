@@ -1,72 +1,75 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заявка на сборку мебели</title>
+    <title>Furniture Assembly Request</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 50px; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 80vh; }
-        form { background: white; padding: 30px; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        input, textarea, button { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        button { background-color: #0088cc; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 16px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 50px; 
+            background-color: #f4f4f9; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 80vh; 
+        }
+        form { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            width: 100%; 
+            max-width: 400px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        h3 { margin-top: 0; margin-bottom: 20px; color: #333; font-size: 22px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
+        input, textarea, button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+        }
+        input:focus, textarea:focus { border-color: #25d366; outline: none; }
+        button { 
+            background-color: #25d366; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px; 
+            margin-bottom: 0;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #1ebd56; }
     </style>
 </head>
 <body>
 
-    <form id="tg-form">
-        <h3>Оставить заявку на сборку мебели</h3>
-        <input type="text" id="name" placeholder="Ваше имя" required>
-        <input type="tel" id="phone" placeholder="Номер телефона" required>
-        <textarea id="details" placeholder="Что нужно собрать?" rows="4" required></textarea>
-        <button type="submit">Отправить заявку</button>
+    <form action="https://api.web3forms.com/submit" method="POST">
+        
+        <input type="hidden" name="access_key" value="1255fc58-2cfc-4254-848a-9dc970317152">
+        
+        <input type="hidden" name="subject" value="🛠️ New Furniture Assembly Request!">
+
+        <h3>Request a Service</h3>
+        
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" name="Client Name" placeholder="John Doe" required>
+        
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="Phone Number" placeholder="+1 (555) 000-0000" required>
+        
+        <label for="message">Project Details:</label>
+        <textarea id="message" name="Project Details" placeholder="e.g., IKEA wardrobe, chest of drawers, bed assembly" rows="4" required></textarea>
+        
+        <button type="submit">Submit Request</button>
+        
     </form>
-
-    <script>
-        // Токен твоего бота я вшил намертво
-        const TOKEN = "6106855993:AAEYxRIOggTc2Zp7xTGx5-Ldv-rg4LYzZGc"; 
-
-        // Сначала пробуем узнать твой ID автоматически через последнее сообщение боту
-        document.getElementById('tg-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            try {
-                // Авто-поиск твоего ID: смотрим, кто последний писал боту
-                const responseUpdates = await fetch(`https://api.telegram.org/bot${TOKEN}/getUpdates`);
-                const dataUpdates = await responseUpdates.json();
-                
-                if (!dataUpdates.result || dataUpdates.result.length === 0) {
-                    alert("Бот тебя не видит! Зайди в Telegram в своего бота @Misha_test3248bot, нажми СТАРТ и напиши ему любое слово. Потом вернись и нажми кнопку еще раз.");
-                    return;
-                }
-                
-                // Берем ID последнего написавшего пользователя
-                const CHAT_ID = dataUpdates.result[dataUpdates.result.length - 1].message.chat.id;
-                
-                const name = document.getElementById('name').value;
-                const phone = document.getElementById('phone').value;
-                const details = document.getElementById('details').value;
-                
-                let message = `<b>🛠️ Новая заявка!</b>\n\n<b>Клиент:</b> ${name}\n<b>Телефон:</b> ${phone}\n<b>Что собрать:</b> ${details}`;
-                
-                const responseSend = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: CHAT_ID, parse_mode: 'html', text: message })
-                });
-                
-                if (responseSend.ok) {
-                    alert(`Успешно! Бот нашел твой ID (${CHAT_ID}) и отправил сообщение.`);
-                    document.getElementById('tg-form').reset();
-                } else {
-                    alert("Ошибка отправки. Убедись, что бот не заблокирован.");
-                }
-                
-            } catch (error) {
-                console.error(error);
-                alert("Ошибка соединения с Telegram.");
-            }
-        });
-    </script>
 
 </body>
 </html>
