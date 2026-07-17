@@ -1,50 +1,77 @@
+HTML
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Тест Telegram Формы</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявка на сборку мебели</title>
+    <style>
+        /* Минимальные стили, чтобы форма выглядела аккуратно */
+        body { font-family: Arial, sans-serif; margin: 50px; background-color: #f4f4f9; }
+        form { background: white; padding: 20px; border-radius: 8px; max-width: 400px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, textarea, button { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #0088cc; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #006699; }
+    </style>
 </head>
 <body>
 
-    <h2>Тест отправки в Telegram</h2>
-    
     <form id="tg-form">
-        <input type="text" id="name" placeholder="Твое имя" required><br><br>
-        <button type="submit">Отправить тест</button>
+        <h3>Оставить заявку на сборку мебели</h3>
+        <input type="text" id="name" placeholder="Ваше имя" required>
+        <input type="tel" id="phone" placeholder="Номер телефона" required>
+        <textarea id="details" placeholder="Что нужно собрать? (например, шкаф, кухня, комод)" rows="4" required></textarea>
+        <button type="submit">Отправить заявку в Telegram</button>
     </form>
 
     <script>
-    // === ВСТАВЬ СВОИ ДАННЫЕ СЮДА ===
-    const TOKEN = "6106855993:AAEYxRIOggTc2Zp7xTGx5-Ldv-rg4LYzZGc"; 
-    const CHAT_ID = "@Misha_test3248bot"; 
-    // ===============================
+        // === ВСТАВЬ СВОИ ДАННЫЕ СЮДА ===
+        const TOKEN = "ЗАМЕНИ_НА_ТОКЕН_ОТ_BOTFATHER"; 
+        const CHAT_ID = "ЗАМЕНИ_НА_ТВОЙ_TELEGRAM_ID"; 
+        // ===============================
 
-    const URI_API = `https://api.telegram.org/bot${ 6106855993:AAEYxRIOggTc2Zp7xTGx5-Ldv-rg4LYzZGc }/sendMessage`;
+        const URI_API = `https://api.telegram.org/bot${ TOKEN }/sendMessage`;
 
-    document.getElementById('tg-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('name').value;
-        const message = `<b>Тест прошел успешно!</b>\nПривет, это проверка от ${name}`;
-        
-        fetch(URI_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                parse_mode: 'html',
-                text: message
+        document.getElementById('tg-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // Запрещаем перезагрузку страницы
+            
+            // Собираем данные из полей формы
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const details = document.getElementById('details').value;
+            
+            // Формируем красивый текст для Telegram
+            let message = `<b>🛠️ Новая заявка на сборку!</b>\n\n`;
+            message += `<b>Клиент:</b> ${name}\n`;
+            message += `<b>Телефон:</b> ${phone}\n`;
+            message += `<b>Что собрать:</b> ${details}`;
+            
+            // Отправляем данные в Telegram с помощью fetch
+            fetch(URI_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    parse_mode: 'html',
+                    text: message
+                })
             })
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Ура! Сообщение улетело в Telegram!');
-            } else {
-                alert('Что-то пошло не так. Проверь токен и ID.');
-            }
-        })
-        .catch(err => console.error(err));
-    });
+            .then(response => {
+                if (response.ok) {
+                    alert('Заявка успешно отправлена! Бот уже передал её мне.');
+                    document.getElementById('tg-form').reset(); // Очищаем форму
+                } else {
+                    alert('Ошибка при отправке. Проверь правильность Токена и ID.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка сети:', error);
+                alert('Не удалось связаться с сервером Telegram.');
+            });
+        });
     </script>
 
 </body>
