@@ -5,12 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Furniture Assembly Request</title>
     <style>
-        body { font-family: sans-serif; background-color: #1e1e1e; color: #fff; padding: 20px; }
-        form { max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
-        input, textarea, button { padding: 10px; border-radius: 5px; border: 1px solid #444; background-color: #2d2d2d; color: #fff; }
-        button { background-color: #0076ff; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #005bc5; }
-        #result { text-align: center; font-weight: bold; margin-top: 15px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #1e1e1e; 
+            color: #fff; 
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        form { 
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            max-width: 400px; 
+            width: 100%;
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #0076ff;
+        }
+        input, textarea, button { 
+            padding: 12px; 
+            border-radius: 5px; 
+            border: 1px solid #444; 
+            background-color: #1e1e1e; 
+            color: #fff; 
+            font-size: 14px;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #0076ff;
+        }
+        button { 
+            background-color: #0076ff; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: background 0.2s ease;
+            margin-top: 5px;
+        }
+        button:hover { 
+            background-color: #005bc5; 
+        }
+        #result { 
+            text-align: center; 
+            font-weight: bold; 
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
@@ -18,7 +68,7 @@
     <form id="web3-form">
         <input type="hidden" name="access_key" value="1255fc58-2cfc-4254-848a-9dc970317152">
         <input type="hidden" name="subject" value="New Furniture Assembly Request">
-        <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+        <input type="checkbox" name="botcheck" style="display: none;">
 
         <h3>Request Furniture Assembly</h3>
         
@@ -57,7 +107,7 @@
                 if (response.status == 200) {
                     result.style.color = "lightgreen";
                     result.innerHTML = "Success! Request sent.";
-                    form.reset(); // Очищаем форму после успешной отправки
+                    form.reset(); // Очищаем поля формы
                 } else {
                     console.log(response);
                     result.style.color = "red";
